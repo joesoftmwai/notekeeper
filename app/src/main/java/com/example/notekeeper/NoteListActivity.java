@@ -30,7 +30,7 @@ public class NoteListActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(NoteListActivity.this, MainActivity.class));
+                startActivity(new Intent(NoteListActivity.this, NoteActivity.class));
             }
         });
 
@@ -52,9 +52,9 @@ public class NoteListActivity extends AppCompatActivity {
         listNotes.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent = new Intent(NoteListActivity.this, MainActivity.class);
+                Intent intent = new Intent(NoteListActivity.this, NoteActivity.class);
 //                NoteInfo note = (NoteInfo) listNotes.getItemAtPosition(position);
-                intent.putExtra(MainActivity.NOTE_POSITION, position);
+                intent.putExtra(NoteActivity.NOTE_POSITION, position);
 
                 startActivity(intent);
             }
