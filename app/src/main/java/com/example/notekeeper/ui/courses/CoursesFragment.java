@@ -32,7 +32,8 @@ public class CoursesFragment extends Fragment {
                 ViewModelProviders.of(this).get(CoursesViewModel.class);
         mRoot = inflater.inflate(R.layout.fragment_courses, container, false);
         final RecyclerView recyclerCourses = mRoot.findViewById(R.id.list_courses);
-        final GridLayoutManager courseLayoutManager = new GridLayoutManager(getContext(), 2);
+        final GridLayoutManager courseLayoutManager = new GridLayoutManager(getContext(),
+                getResources().getInteger(R.integer.course_grid_span));
 
         mCourseRecyclerAdapter = new CourseRecyclerAdapter(getContext(), mCoursesViewModel.getCourses().getValue());
         recyclerCourses.setLayoutManager(courseLayoutManager);

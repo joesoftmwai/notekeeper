@@ -25,4 +25,6 @@
     <string name="home_second">Home Second</string>
     <string name="title_activity_main2">NoteKeeper</string>
     <string name="title_activity_main1">NoteKeeper</string>
+    <string name="note_title_hint">Note title</string>
+    <string name="note_text_hint">Note text</string>
 </resources>
