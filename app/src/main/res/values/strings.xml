@@ -27,4 +27,42 @@
     <string name="title_activity_main1">NoteKeeper</string>
     <string name="note_title_hint">Note title</string>
     <string name="note_text_hint">Note text</string>
+    <string name="title_activity_settings">Settings</string>
+
+    <!-- Preference Titles -->
+    <string name="general_header">General</string>
+    <string name="messages_header">Notifications</string>
+    <string name="sync_header">Data &amp; Sync</string>
+
+    <!-- General Preferences -->
+    <string name="pref_title_display_name">Display name</string>
+    <string name="pref_default_display_name">Your Name</string>
+    <string name="pref_title_email_address">Email address</string>
+    <string name="pref_default_email_address">Yourname@yourhost.com</string>
+    <string name="pref_title_favourite_social">Favourite social network</string>
+
+    <array name="pref_entries_favourite_social">
+        <item>Google+</item>
+        <item>Facebook</item>
+        <item>Twitter</item>
+    </array>
+
+    <array name="pref_values_favourite_social">
+        <item>http://plus.google.com</item>
+        <item>http://facebook.com</item>
+        <item>http://twitter.com</item>
+    </array>
+
+    <string name="pref_default_favourite_social">http://plus.google.com</string>
+
+    <!-- Messages Preferences -->
+    <string name="signature_title">Your signature</string>
+    <string name="reply_title">Default reply action</string>
+
+    <!-- Sync Preferences -->
+    <string name="sync_title">Sync email periodically</string>
+    <string name="attachment_title">Download incoming attachments</string>
+    <string name="attachment_summary_on">Automatically download attachments for incoming emails
+    </string>
+    <string name="attachment_summary_off">Only download attachments when manually requested</string>
 </resources>
