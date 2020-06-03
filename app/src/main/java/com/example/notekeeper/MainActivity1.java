@@ -65,7 +65,7 @@ public class MainActivity1 extends AppCompatActivity {
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
 
-        SQLiteDatabase database = mDbOpenHelper.getReadableDatabase();
+        DataManager.loadFromDatabase(mDbOpenHelper);
 
     }
 
