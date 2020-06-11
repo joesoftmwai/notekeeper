@@ -16,8 +16,8 @@ public class NotesViewModel extends ViewModel {
 
     public NotesViewModel() {
         mNotes = new MutableLiveData<>();
-        previewNotes = DataManager.getInstance().getNotes();
-        mNotes.setValue(previewNotes);
+ //       previewNotes = DataManager.getInstance().getNotes();
+        mNotes.setValue(null);
     }
 
     public LiveData<List<NoteInfo>> getNotes() {

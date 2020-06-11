@@ -36,7 +36,7 @@ public class MainActivity1 extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main1);
 
-        mDbOpenHelper = new NoteKeeperOpenHelper(this);
+//        mDbOpenHelper = new NoteKeeperOpenHelper(this);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -65,15 +65,15 @@ public class MainActivity1 extends AppCompatActivity {
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
 
-        DataManager.loadFromDatabase(mDbOpenHelper);
+//        DataManager.loadFromDatabase(mDbOpenHelper);
 
     }
 
-    @Override
-    protected void onDestroy() {
-        mDbOpenHelper.close();
-        super.onDestroy();
-    }
+//    @Override
+//    protected void onDestroy() {
+//        mDbOpenHelper.close();
+//        super.onDestroy();
+//    }
 
     @Override
     protected void onResume() {
