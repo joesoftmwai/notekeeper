@@ -1,5 +1,9 @@
 package com.example.notekeeper.ui.notes;
 
+import android.annotation.SuppressLint;
+import android.app.LoaderManager;
+import android.content.CursorLoader;
+import android.content.Loader;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
@@ -17,6 +21,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.notekeeper.DataManager;
+import com.example.notekeeper.MainActivity1;
 import com.example.notekeeper.NoteInfo;
 import com.example.notekeeper.NoteKeeperDatabaseContract;
 import com.example.notekeeper.NoteKeeperDatabaseContract.NoteInfoEntry;
@@ -26,7 +31,9 @@ import com.example.notekeeper.R;
 
 import java.util.List;
 
-public class NotesFragment extends Fragment {
+import static com.example.notekeeper.NoteActivity.LOADER_NOTES;
+
+public class NotesFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>  {
 
     private NotesViewModel mNotesViewModel;
     private NoteRecyclerAdapter mNoteRecyclerAdapter;
@@ -93,4 +100,43 @@ public class NotesFragment extends Fragment {
         });
 
     }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        CursorLoader loader = null;
+        if(id == LOADER_NOTES) {
+            loader = new CursorLoader(getContext()) {
+                @Override
+                public Cursor loadInBackground() {
+                    SQLiteDatabase db = mDbOpenHelper.getReadableDatabase();
+                    final String[] noteColumns = {
+                            NoteInfoEntry.COLUMN_NOTE_TITLE,
+                            NoteInfoEntry.COLUMN_COURSE_ID,
+                            NoteInfoEntry._ID
+                    };
+
+                    String noteOrderBy = NoteInfoEntry.COLUMN_COURSE_ID + ", " + NoteInfoEntry.COLUMN_NOTE_TITLE;
+                    Cursor noteCursor = db.query(NoteInfoEntry.TABLE_NAME, noteColumns,
+                            null, null, null, null, noteOrderBy + " ASC");
+                    return  noteCursor;
+                }
+            };
+        }
+        return loader;
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        if (loader.getId() == LOADER_NOTES)
+            mNoteRecyclerAdapter.changeCursor(data);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        if (loader.getId() == LOADER_NOTES)
+            mNoteRecyclerAdapter.changeCursor(null);
+    }
+
+
+
 }

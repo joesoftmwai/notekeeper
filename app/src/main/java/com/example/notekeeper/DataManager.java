@@ -98,7 +98,7 @@ public class DataManager {
     }
 
     public int createNewNote() {
-        NoteInfo note = new NoteInfo(null, null, null, 1);
+        NoteInfo note = new NoteInfo(null, null, null, 0);
         mNotes.add(note);
         return mNotes.size() - 1;
     }
