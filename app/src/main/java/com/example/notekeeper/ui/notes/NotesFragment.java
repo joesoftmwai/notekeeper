@@ -25,6 +25,8 @@ import com.example.notekeeper.MainActivity1;
 import com.example.notekeeper.NoteInfo;
 import com.example.notekeeper.NoteKeeperDatabaseContract;
 import com.example.notekeeper.NoteKeeperDatabaseContract.NoteInfoEntry;
+import com.example.notekeeper.NoteKeeperDatabaseContract.CourseInfoEntry;
+
 import com.example.notekeeper.NoteKeeperOpenHelper;
 import com.example.notekeeper.NoteRecyclerAdapter;
 import com.example.notekeeper.R;
@@ -74,12 +76,20 @@ public class NotesFragment extends Fragment implements LoaderManager.LoaderCallb
         SQLiteDatabase db = mDbOpenHelper.getReadableDatabase();
         final String[] noteColumns = {
                 NoteInfoEntry.COLUMN_NOTE_TITLE,
-                NoteInfoEntry.COLUMN_COURSE_ID,
-                NoteInfoEntry._ID
+                // NoteInfoEntry.getQName(NoteInfoEntry.COLUMN_COURSE_ID),
+                NoteInfoEntry.getQName(NoteInfoEntry._ID),
+                CourseInfoEntry.COLUMN_COURSE_TITLE
         };
 
-        String noteOrderBy = NoteInfoEntry.COLUMN_COURSE_ID + ", " + NoteInfoEntry.COLUMN_NOTE_TITLE;
-        final Cursor noteCursor = db.query(NoteInfoEntry.TABLE_NAME, noteColumns,
+        String noteOrderBy = CourseInfoEntry.COLUMN_COURSE_TITLE +
+                ", " + NoteInfoEntry.COLUMN_NOTE_TITLE;
+
+        // noteInfo JOIN courseInfo ON noteInfo.course_id = courseInfo.course_id
+        String tablesWithJoin = NoteInfoEntry.TABLE_NAME + " JOIN " +
+                CourseInfoEntry.TABLE_NAME + " ON " +
+                NoteInfoEntry.getQName(NoteInfoEntry.COLUMN_COURSE_ID) + " = " +
+                CourseInfoEntry.getQName(CourseInfoEntry.COLUMN_COURSE_ID);
+        final Cursor noteCursor = db.query(tablesWithJoin, noteColumns,
                 null, null, null, null, noteOrderBy + " ASC");
         mNoteRecyclerAdapter.changeCursor(noteCursor);
     }
