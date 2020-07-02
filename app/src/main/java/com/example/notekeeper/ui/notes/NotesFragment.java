@@ -1,6 +1,5 @@
 package com.example.notekeeper.ui.notes;
 
-import android.annotation.SuppressLint;
 import android.app.LoaderManager;
 import android.content.CursorLoader;
 import android.content.Loader;
@@ -10,10 +9,8 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
@@ -21,13 +18,12 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.notekeeper.DataManager;
-import com.example.notekeeper.MainActivity1;
 import com.example.notekeeper.NoteInfo;
-import com.example.notekeeper.NoteKeeperDatabaseContract;
 import com.example.notekeeper.NoteKeeperDatabaseContract.NoteInfoEntry;
 import com.example.notekeeper.NoteKeeperDatabaseContract.CourseInfoEntry;
 
 import com.example.notekeeper.NoteKeeperOpenHelper;
+import com.example.notekeeper.NoteKeeperProviderContract.Notes;
 import com.example.notekeeper.NoteRecyclerAdapter;
 import com.example.notekeeper.R;
 
@@ -69,29 +65,47 @@ public class NotesFragment extends Fragment implements LoaderManager.LoaderCallb
     public void onResume() {
         super.onResume();
 //        mNoteRecyclerAdapter.notifyDataSetChanged();
-        loadNotes();
+//        loadNotes();
+        getActivity().getLoaderManager().restartLoader(LOADER_NOTES, null, this);
+
+
     }
 
     private void loadNotes() {
-        SQLiteDatabase db = mDbOpenHelper.getReadableDatabase();
-        final String[] noteColumns = {
-                NoteInfoEntry.COLUMN_NOTE_TITLE,
-                // NoteInfoEntry.getQName(NoteInfoEntry.COLUMN_COURSE_ID),
-                NoteInfoEntry.getQName(NoteInfoEntry._ID),
-                CourseInfoEntry.COLUMN_COURSE_TITLE
+
+//        SQLiteDatabase db = mDbOpenHelper.getReadableDatabase();
+//        final String[] noteColumns = {
+//                NoteInfoEntry.COLUMN_NOTE_TITLE,
+//                // NoteInfoEntry.getQName(NoteInfoEntry.COLUMN_COURSE_ID),
+//                NoteInfoEntry.getQName(NoteInfoEntry._ID),
+//                CourseInfoEntry.COLUMN_COURSE_TITLE
+//        };
+//
+//        String noteOrderBy = CourseInfoEntry.COLUMN_COURSE_TITLE +
+//                ", " + NoteInfoEntry.COLUMN_NOTE_TITLE;
+//
+//
+//        // noteInfo JOIN courseInfo ON noteInfo.course_id = courseInfo.course_id
+//        String tablesWithJoin = NoteInfoEntry.TABLE_NAME + " JOIN " +
+//                CourseInfoEntry.TABLE_NAME + " ON " +
+//                NoteInfoEntry.getQName(NoteInfoEntry.COLUMN_COURSE_ID) + " = " +
+//                CourseInfoEntry.getQName(CourseInfoEntry.COLUMN_COURSE_ID);
+//        final Cursor noteCursor = db.query(tablesWithJoin, noteColumns,
+//                null, null, null, null, noteOrderBy + " ASC");
+//        mNoteRecyclerAdapter.changeCursor(noteCursor);
+
+        // using context provider
+        final String[] projection = {
+                Notes._ID,
+                Notes.COLUMN_NOTE_TITLE,
+                Notes.COLUMN_COURSE_TITLE
         };
 
-        String noteOrderBy = CourseInfoEntry.COLUMN_COURSE_TITLE +
-                ", " + NoteInfoEntry.COLUMN_NOTE_TITLE;
+        String sortOrder = Notes.COLUMN_COURSE_TITLE + ", " + Notes.COLUMN_NOTE_TITLE;
 
-        // noteInfo JOIN courseInfo ON noteInfo.course_id = courseInfo.course_id
-        String tablesWithJoin = NoteInfoEntry.TABLE_NAME + " JOIN " +
-                CourseInfoEntry.TABLE_NAME + " ON " +
-                NoteInfoEntry.getQName(NoteInfoEntry.COLUMN_COURSE_ID) + " = " +
-                CourseInfoEntry.getQName(CourseInfoEntry.COLUMN_COURSE_ID);
-        final Cursor noteCursor = db.query(tablesWithJoin, noteColumns,
-                null, null, null, null, noteOrderBy + " ASC");
-        mNoteRecyclerAdapter.changeCursor(noteCursor);
+        Cursor cursor = getActivity().getContentResolver().query(Notes.CONTENT_EXPANDED_URI, projection,
+                null, null, sortOrder);
+        mNoteRecyclerAdapter.changeCursor(cursor);
     }
 
     private void initializeDisplayContent() {
@@ -115,22 +129,18 @@ public class NotesFragment extends Fragment implements LoaderManager.LoaderCallb
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         CursorLoader loader = null;
         if(id == LOADER_NOTES) {
-            loader = new CursorLoader(getContext()) {
-                @Override
-                public Cursor loadInBackground() {
-                    SQLiteDatabase db = mDbOpenHelper.getReadableDatabase();
-                    final String[] noteColumns = {
-                            NoteInfoEntry.COLUMN_NOTE_TITLE,
-                            NoteInfoEntry.COLUMN_COURSE_ID,
-                            NoteInfoEntry._ID
-                    };
 
-                    String noteOrderBy = NoteInfoEntry.COLUMN_COURSE_ID + ", " + NoteInfoEntry.COLUMN_NOTE_TITLE;
-                    Cursor noteCursor = db.query(NoteInfoEntry.TABLE_NAME, noteColumns,
-                            null, null, null, null, noteOrderBy + " ASC");
-                    return  noteCursor;
-                }
+            final String[] noteColumns = {
+                    Notes._ID,
+                    Notes.COLUMN_NOTE_TITLE,
+                    Notes.COLUMN_COURSE_TITLE
             };
+
+            String noteOrderBy = Notes.COLUMN_COURSE_TITLE + ", " + Notes.COLUMN_NOTE_TITLE;
+
+            loader = new CursorLoader(getContext(), Notes.CONTENT_EXPANDED_URI,
+                    noteColumns, null, null, noteOrderBy);
+
         }
         return loader;
     }
