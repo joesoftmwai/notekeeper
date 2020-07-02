@@ -2,6 +2,9 @@ package com.example.notekeeper;
 
 import android.annotation.SuppressLint;
 import android.app.LoaderManager;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.CursorLoader;
@@ -9,20 +12,21 @@ import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Spinner;
@@ -32,12 +36,12 @@ import com.example.notekeeper.NoteKeeperDatabaseContract.NoteInfoEntry;
 import com.example.notekeeper.NoteKeeperProviderContract.Courses;
 import com.example.notekeeper.NoteKeeperProviderContract.Notes;
 
-import java.util.List;
-
 public class NoteActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
     public static final int LOADER_NOTES = 0;
     public static final int LOADER_COURSES = 1;
+    public static final int NOTES_NOTIFICATION_ID = 0;
     private final  String TAG = getClass().getSimpleName();
+    public static final String CHANNEL_ID = "noteReminderNotification";
     public static final String NOTE_ID = "com.example.notekeeper.NOTE_ID";
     public static final int ID_NOT_SET = -1;
     private NoteInfo mNote;
@@ -70,6 +74,9 @@ public class NoteActivity extends AppCompatActivity implements LoaderManager.Loa
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        // register notification channel
+        createNotificationChannel();
 
         mDbOpenHelper = new NoteKeeperOpenHelper(this);
 
@@ -251,10 +258,90 @@ public class NoteActivity extends AppCompatActivity implements LoaderManager.Loa
             finish();
         } else if(id == R.id.action_next) {
             moveNext();
+        } else if (id == R.id.action_set_reminder) {
+            showReminderNotification();
         }
 
         return super.onOptionsItemSelected(item);
     }
+
+    private void showReminderNotification() {
+        String noteTitle = mTextNoteTitle.getText().toString();
+        String noteText = mTextNoteText.getText().toString();
+
+        int noteId   = (int) ContentUris.parseId(mNoteUri);
+
+        // Create an explicit intent for an Activity in your app
+        Intent noteActivityIntent = new Intent(getApplicationContext(), NoteActivity.class);
+        noteActivityIntent.putExtra(NoteActivity.NOTE_ID, noteId);
+        noteActivityIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        // view note pending intent
+        PendingIntent pendingIntent = PendingIntent.getActivity(
+                this,
+                0, noteActivityIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+
+        // view all notes pending intent
+        PendingIntent allNotesPendingIntent = PendingIntent.getActivity(
+                this,
+                0, new Intent(getApplicationContext(), MainActivity1.class),
+                PendingIntent.FLAG_UPDATE_CURRENT
+        );
+
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_assignment_black_24dp)
+                .setContentTitle(noteTitle)
+                .setContentText(noteText)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+
+                // Set ticker text (preview) information for this notification.
+                .setTicker("Review note")
+
+                // Set display style for our notification
+                .setStyle(new NotificationCompat.BigTextStyle()
+                        .bigText(noteText)
+                        .setBigContentTitle(noteTitle)
+                        // .setSummaryText("Review note")
+                )
+
+                // Set the intent that will fire when the user taps the notification
+                .setContentIntent(pendingIntent)
+
+                // Add action
+                .addAction(
+                        0,
+                        getString(R.string.view_all_notes),
+                        allNotesPendingIntent
+                        )
+
+                // Automatically dismiss the notification when it is touched.
+                .setAutoCancel(true);
+
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+
+        // notificationId is a unique int for each notification that you must define
+        notificationManager.notify(NOTES_NOTIFICATION_ID, builder.build());
+    }
+
+
+    // create notificationChannel and set importance
+    private void createNotificationChannel() {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = getString(R.string.channel_name);
+            String description = getString(R.string.channel_description);
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
+            channel.setDescription(description);
+            // Register the channel with the system; you can't change the importance
+            // or other notification behaviors after this
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+    }
+
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {

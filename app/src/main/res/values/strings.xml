@@ -65,4 +65,9 @@
     <string name="attachment_summary_on">Automatically download attachments for incoming emails
     </string>
     <string name="attachment_summary_off">Only download attachments when manually requested</string>
+    <string name="set_reminder">Set reminder</string>
+    <string name="send_as_email">Send as email</string>
+    <string name="channel_name">NotesChannel</string>
+    <string name="channel_description">Channel for notes notifications</string>
+    <string name="view_all_notes">View all notes</string>
 </resources>
