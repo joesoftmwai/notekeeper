@@ -4,6 +4,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.StrictMode;
+import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Menu;
@@ -12,6 +16,7 @@ import android.widget.TextView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 
+import androidx.core.view.GravityCompat;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -37,6 +42,7 @@ public class MainActivity1 extends AppCompatActivity {
         setContentView(R.layout.activity_main1);
 
 //        mDbOpenHelper = new NoteKeeperOpenHelper(this);
+        enableStrictMode();
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -69,6 +75,17 @@ public class MainActivity1 extends AppCompatActivity {
 
     }
 
+    private void enableStrictMode() {
+        if (BuildConfig.DEBUG){
+            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
+                    // .detectDiskReads().detectDiskWrites().detectNetwork()
+                    .detectAll()
+                    .penaltyLog()
+                    .build();
+            StrictMode.setThreadPolicy(policy);
+        }
+    }
+
 //    @Override
 //    protected void onDestroy() {
 //        mDbOpenHelper.close();
@@ -79,6 +96,22 @@ public class MainActivity1 extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         updateNavHeader();
+
+        // automatically open navigation drawer
+        openDrawer();
+    }
+
+    private void openDrawer() {
+        Handler handler = new Handler(Looper.getMainLooper());
+        // writing to the messageQueue
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                DrawerLayout drawer = findViewById(R.id.drawer_layout);
+                drawer.openDrawer(GravityCompat.START);
+            }
+        }, 5000);
+
     }
 
     private void updateNavHeader() {
