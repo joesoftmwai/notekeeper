@@ -1,11 +1,15 @@
 package com.example.notekeeper;
 
+import android.app.job.JobInfo;
+import android.app.job.JobScheduler;
+import android.content.ComponentName;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.PersistableBundle;
 import android.os.StrictMode;
 import android.view.Gravity;
 import android.view.MenuItem;
@@ -31,8 +35,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
+import static com.example.notekeeper.NoteKeeperProviderContract.*;
+
 public class MainActivity1 extends AppCompatActivity {
 
+    public static final int NOTE_UPLOADER_JOB_ID = 1;
     private AppBarConfiguration mAppBarConfiguration;
     private NoteKeeperOpenHelper mDbOpenHelper;
 
@@ -155,10 +162,32 @@ public class MainActivity1 extends AppCompatActivity {
             return true;
         } else if(id == R.id.action_backup_notes) {
             backupNotes();
-            return true;
+        } else if (id == R.id.action_upload_notes) {
+            scheduleNotesUpload();
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void scheduleNotesUpload() {
+        // associating extras with our job information
+        // -> use persistable bundle.class
+        PersistableBundle extras = new PersistableBundle();
+        // adding values to the persistable bundle
+        extras.putString(NoteUploaderJobService.EXTRA_DATA_URI, Notes.CONTENT_URI.toString());
+
+        // build job information
+        // 1. describe component that will handle the job
+        ComponentName componentName = new ComponentName(this, NoteUploaderJobService.class);
+        // 2. building the instance of job info class
+        JobInfo jobInfo = new JobInfo.Builder(NOTE_UPLOADER_JOB_ID, componentName)
+                .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+                // associating the extras with information for our job
+                .setExtras(extras)
+                .build();
+        // 3. scheduling the job
+        JobScheduler jobScheduler = (JobScheduler) getSystemService(JOB_SCHEDULER_SERVICE);
+        jobScheduler.schedule(jobInfo);
     }
 
     private void backupNotes() {
