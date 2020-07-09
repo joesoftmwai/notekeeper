@@ -70,4 +70,5 @@
     <string name="channel_name">NotesChannel</string>
     <string name="channel_description">Channel for notes notifications</string>
     <string name="view_all_notes">View all notes</string>
+    <string name="backup_notes_action">Backup Notes</string>
 </resources>

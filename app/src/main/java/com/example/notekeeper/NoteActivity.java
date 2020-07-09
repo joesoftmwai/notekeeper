@@ -242,7 +242,9 @@ public class NoteActivity extends AppCompatActivity implements LoaderManager.Loa
                 Log.d(TAG, "doInBackground - thread: " + Thread.currentThread().getId());
                 ContentValues insertValues = contentValues[0];
                 Uri rowUri = getContentResolver().insert(Notes.CONTENT_URI, insertValues);
+                simulateLongRunningWork();
                 publishProgress(2);
+                simulateLongRunningWork();
                 publishProgress(3);
                 return rowUri;
             }
@@ -272,6 +274,14 @@ public class NoteActivity extends AppCompatActivity implements LoaderManager.Loa
         task.execute(values);
 
 
+    }
+
+    private void simulateLongRunningWork() {
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -314,6 +324,7 @@ public class NoteActivity extends AppCompatActivity implements LoaderManager.Loa
         Intent noteActivityIntent = new Intent(getApplicationContext(), NoteActivity.class);
         noteActivityIntent.putExtra(NoteActivity.NOTE_ID, noteId);
         noteActivityIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
         // view note pending intent
         PendingIntent pendingIntent = PendingIntent.getActivity(
                 this,
@@ -324,6 +335,17 @@ public class NoteActivity extends AppCompatActivity implements LoaderManager.Loa
         PendingIntent allNotesPendingIntent = PendingIntent.getActivity(
                 this,
                 0, new Intent(getApplicationContext(), MainActivity1.class),
+                PendingIntent.FLAG_UPDATE_CURRENT
+        );
+
+        // Create an explicit intent for Backup Service in your app
+        Intent backUpServiceIntent = new Intent(getApplicationContext(), NoteBackupService.class);
+        backUpServiceIntent.putExtra(NoteBackupService.EXTRA_COURSE_ID, NoteBackup.ALL_COURSES);
+
+        // backup notes pending intent
+        PendingIntent backupNotesPendingIntent = PendingIntent.getService(
+                this,
+                0, backUpServiceIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT
         );
 
@@ -353,6 +375,11 @@ public class NoteActivity extends AppCompatActivity implements LoaderManager.Loa
                         getString(R.string.view_all_notes),
                         allNotesPendingIntent
                         )
+                .addAction(
+                        0,
+                        getString(R.string.backup_notes_action),
+                        backupNotesPendingIntent
+                )
 
                 // Automatically dismiss the notification when it is touched.
                 .setAutoCancel(true);

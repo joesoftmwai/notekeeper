@@ -98,7 +98,7 @@ public class MainActivity1 extends AppCompatActivity {
         updateNavHeader();
 
         // automatically open navigation drawer
-        openDrawer();
+        // openDrawer();
     }
 
     private void openDrawer() {
@@ -153,8 +153,22 @@ public class MainActivity1 extends AppCompatActivity {
         if (id == R.id.action_settings) {
             startActivity(new Intent(this, SettingsActivity.class));
             return true;
+        } else if(id == R.id.action_backup_notes) {
+            backupNotes();
+            return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void backupNotes() {
+        // direct call to backup method causes the app to freeze
+        // NoteBackup.doBackup(MainActivity1.this, NoteBackup.ALL_COURSES);
+
+        // start service to do the backup
+        Intent intent = new Intent(this, NoteBackupService.class);
+        intent.putExtra(NoteBackupService.EXTRA_COURSE_ID, NoteBackup.ALL_COURSES);
+        startService(intent);
+
     }
 }
