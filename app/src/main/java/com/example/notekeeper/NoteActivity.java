@@ -1,12 +1,14 @@
 package com.example.notekeeper;
 
 import android.annotation.SuppressLint;
+import android.app.AlarmManager;
 import android.app.LoaderManager;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
@@ -24,6 +26,7 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -322,37 +325,68 @@ public class NoteActivity extends AppCompatActivity implements LoaderManager.Loa
 
         int noteId   = (int) ContentUris.parseId(mNoteUri);
 
+//        handleNotificationDisplay(this, noteTitle, noteText, noteId);
+
+        // use alarm to schedule a call to noteReminderBroadcastReceiver
+        Intent intent = new Intent(this, NoteReminderReceiver.class);
+        intent.putExtra(NoteReminderReceiver.EXTRA_NOTE_TITLE, noteTitle);
+        intent.putExtra(NoteReminderReceiver.EXTRA_NOTE_TEXT, noteText);
+        intent.putExtra(NoteReminderReceiver.EXTRA_NOTE_ID, noteId);
+
+        // creating the pending intent
+        PendingIntent pendingIntent =
+                PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        // reference to the alarm manager
+        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+
+        // setting the alarm manager
+        // 1. calculate the time we want to set the alarm to
+        long currentTimeInMilliseconds  = SystemClock.elapsedRealtime();
+        long ONE_HOUR = 60 * 60 * 1000;
+        long TEN_SECONDS = 10 * 1000;
+        // 2. set the time when the alarm will fire
+        long alarmTime = currentTimeInMilliseconds + TEN_SECONDS;
+        // 3. setting the alarm
+        alarmManager.set(AlarmManager.ELAPSED_REALTIME, alarmTime, pendingIntent);
+
+
+
+    }
+
+    public static void handleNotificationDisplay(Context context, String noteTitle, String noteText, int noteId) {
+
         // Create an explicit intent for an Activity in your app
-        Intent noteActivityIntent = new Intent(getApplicationContext(), NoteActivity.class);
+        Intent noteActivityIntent = new Intent(context, NoteActivity.class);
         noteActivityIntent.putExtra(NoteActivity.NOTE_ID, noteId);
         noteActivityIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 
         // view note pending intent
         PendingIntent pendingIntent = PendingIntent.getActivity(
-                this,
+                context,
                 0, noteActivityIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
 
         // view all notes pending intent
         PendingIntent allNotesPendingIntent = PendingIntent.getActivity(
-                this,
-                0, new Intent(getApplicationContext(), MainActivity1.class),
+                context,
+                0, new Intent(context, MainActivity1.class),
                 PendingIntent.FLAG_UPDATE_CURRENT
         );
 
         // Create an explicit intent for Backup Service in your app
-        Intent backUpServiceIntent = new Intent(getApplicationContext(), NoteBackupService.class);
+        Intent backUpServiceIntent = new Intent(context, NoteBackupService.class);
         backUpServiceIntent.putExtra(NoteBackupService.EXTRA_COURSE_ID, NoteBackup.ALL_COURSES);
 
         // backup notes pending intent
         PendingIntent backupNotesPendingIntent = PendingIntent.getService(
-                this,
+                context,
                 0, backUpServiceIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT
         );
 
 
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_assignment_black_24dp)
                 .setContentTitle(noteTitle)
                 .setContentText(noteText)
@@ -363,8 +397,8 @@ public class NoteActivity extends AppCompatActivity implements LoaderManager.Loa
 
                 // Set display style for our notification
                 .setStyle(new NotificationCompat.BigTextStyle()
-                        .bigText(noteText)
-                        .setBigContentTitle(noteTitle)
+                                .bigText(noteText)
+                                .setBigContentTitle(noteTitle)
                         // .setSummaryText("Review note")
                 )
 
@@ -374,19 +408,19 @@ public class NoteActivity extends AppCompatActivity implements LoaderManager.Loa
                 // Add action
                 .addAction(
                         0,
-                        getString(R.string.view_all_notes),
+                       "View all notes",
                         allNotesPendingIntent
-                        )
+                )
                 .addAction(
                         0,
-                        getString(R.string.backup_notes_action),
+                        "Backup notes",
                         backupNotesPendingIntent
                 )
 
                 // Automatically dismiss the notification when it is touched.
                 .setAutoCancel(true);
 
-        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
 
         // notificationId is a unique int for each notification that you must define
         notificationManager.notify(NOTES_NOTIFICATION_ID, builder.build());

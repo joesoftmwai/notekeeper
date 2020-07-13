@@ -20,7 +20,6 @@
         app:showAsAction="ifRoom|withText" />
     <item
         android:id="@+id/action_set_reminder"
-        android:icon="@drawable/ic_add_alert_black_24dp"
         android:title="@string/set_reminder"
-        app:showAsAction="ifRoom|withText" />
+        app:showAsAction="never" />
 </menu>
