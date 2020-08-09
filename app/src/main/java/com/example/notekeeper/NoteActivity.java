@@ -328,14 +328,14 @@ public class NoteActivity extends AppCompatActivity implements LoaderManager.Loa
 //        handleNotificationDisplay(this, noteTitle, noteText, noteId);
 
         // use alarm to schedule a call to noteReminderBroadcastReceiver
-        Intent intent = new Intent(this, NoteReminderReceiver.class);
+        Intent intent = new Intent(getApplicationContext(), NoteReminderReceiver.class);
         intent.putExtra(NoteReminderReceiver.EXTRA_NOTE_TITLE, noteTitle);
         intent.putExtra(NoteReminderReceiver.EXTRA_NOTE_TEXT, noteText);
         intent.putExtra(NoteReminderReceiver.EXTRA_NOTE_ID, noteId);
 
         // creating the pending intent
         PendingIntent pendingIntent =
-                PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                PendingIntent.getBroadcast(getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         // reference to the alarm manager
         AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
@@ -344,7 +344,7 @@ public class NoteActivity extends AppCompatActivity implements LoaderManager.Loa
         // 1. calculate the time we want to set the alarm to
         long currentTimeInMilliseconds  = SystemClock.elapsedRealtime();
         long ONE_HOUR = 60 * 60 * 1000;
-        long TEN_SECONDS = 10 * 1000;
+        long TEN_SECONDS = 1000;
         // 2. set the time when the alarm will fire
         long alarmTime = currentTimeInMilliseconds + TEN_SECONDS;
         // 3. setting the alarm
