@@ -41,6 +41,11 @@ import com.example.notekeeper.NoteKeeperDatabaseContract.NoteInfoEntry;
 import com.example.notekeeper.NoteKeeperProviderContract.Courses;
 import com.example.notekeeper.NoteKeeperProviderContract.Notes;
 
+import static com.example.notekeeper.NoteActivityViewModel.ORIGINAL_NOTE_COURSE_ID;
+import static com.example.notekeeper.NoteActivityViewModel.ORIGINAL_NOTE_TEXT;
+import static com.example.notekeeper.NoteActivityViewModel.ORIGINAL_NOTE_TITLE;
+import static com.example.notekeeper.NoteActivityViewModel.ORIGINAL_NOTE_URI;
+
 public class NoteActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
     public static final int LOADER_NOTES = 0;
     public static final int LOADER_COURSES = 1;
@@ -154,15 +159,15 @@ public class NoteActivity extends AppCompatActivity implements LoaderManager.Loa
         displayNote();
     }
 
-//    private void saveOriginalNoteValues() {
-//        if(mIsNewNote)
-//            return;
-//
-//
+    private void saveOriginalNoteValues() {
+        if(mIsNewNote)
+            return;
+
+
 //        mViewModel.mOriginalNoteCourseId = mNote.getCourse().getCourseId();
 //        mViewModel.mOriginalNoteTitle = mNote.getTitle();
 //        mViewModel.mOriginalNoteText = mNote.getText();
-//    }
+    }
 
     private void displayNote() {
         String courseId = mNoteCursor.getString(mCourseIdPos);
@@ -512,6 +517,11 @@ public class NoteActivity extends AppCompatActivity implements LoaderManager.Loa
         super.onSaveInstanceState(outState);
         if(outState != null)
             mViewModel.saveState(outState);
+        outState.putString(ORIGINAL_NOTE_COURSE_ID, mViewModel.mOriginalNoteCourseId);
+        outState.putString(ORIGINAL_NOTE_TITLE, mViewModel.mOriginalNoteTitle);
+        outState.putString(ORIGINAL_NOTE_TEXT, mViewModel.mOriginalNoteText);
+
+        outState.putString(ORIGINAL_NOTE_URI, mNoteUri.toString());
     }
 
     private void saveNote() {
