@@ -64,6 +64,7 @@
         android:padding="5dp"
         app:layout_constraintEnd_toEndOf="@+id/text_note_text"
         app:layout_constraintStart_toStartOf="@+id/text_note_text"
-        app:layout_constraintTop_toBottomOf="@+id/text_note_text" />
+        app:layout_constraintTop_toBottomOf="@+id/text_note_text"
+        app:outlineColor="@android:color/holo_green_dark" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

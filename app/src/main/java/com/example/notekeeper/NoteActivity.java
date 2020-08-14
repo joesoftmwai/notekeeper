@@ -71,6 +71,7 @@ public class NoteActivity extends AppCompatActivity implements LoaderManager.Loa
     private boolean mCoursesQueryFinished;
     private boolean mNotesQueryFinished;
     private Uri mNoteUri;
+    private ModuleStatusView mViewModuleStatus;
 
     @Override
     protected void onDestroy() {
@@ -120,7 +121,21 @@ public class NoteActivity extends AppCompatActivity implements LoaderManager.Loa
 //            displayNote();
 //            loadNoteData();
             getLoaderManager().initLoader(LOADER_NOTES, null, this);
+
+        mViewModuleStatus = findViewById(R.id.module_status);
+        loadModuleStatusValues();
         Log.d(TAG, "*****************onCreate*****************");
+    }
+
+    private void loadModuleStatusValues() {
+        // in real life module status value would be fetched from a content provider
+        int totalNumberOfModules = 10;
+        int completedNumberOfModules =6;
+        boolean[] moduleStatus = new boolean[totalNumberOfModules];
+        for (int moduleIndex = 0; moduleIndex < completedNumberOfModules; moduleIndex++)
+            moduleStatus[moduleIndex] = true;
+        mViewModuleStatus.setmModuleStatus(moduleStatus);
+
     }
 
     private void loadCourseData() {
