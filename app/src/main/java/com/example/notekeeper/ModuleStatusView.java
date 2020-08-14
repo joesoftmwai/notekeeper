@@ -92,7 +92,7 @@ public class ModuleStatusView extends View {
         mPaintOutline.setStrokeWidth(mOutlineWidth);
         mPaintOutline.setColor(mOutlineColor);
 
-        mFillColor = getContext().getResources().getColor(R.color.pluralsightOrange);
+        mFillColor = getContext().getResources().getColor(R.color.holoGreenLight);
         mPaintFill = new Paint(Paint.ANTI_ALIAS_FLAG);
         mPaintFill.setStyle(Paint.Style.FILL);
         mPaintFill.setColor(mFillColor);
